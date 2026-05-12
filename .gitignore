@@ -1,0 +1,146 @@
+# Environment & Configuration
+.env
+.env.local
+.env*.local
+config/.env
+config/.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+venv/
+ENV/
+env/
+.venv
+
+# Virtual environments
+venv/
+.venv
+env/
+ENV/
+
+# IDE & Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.sublime-project
+.sublime-workspace
+
+# Logs & Data
+logs/
+*.log
+*.log.*
+.gemma-os/
+~/.gemma-os/
+audit.log*
+*.db
+*.sqlite
+*.sqlite3
+
+# Cache & Temporary
+.cache/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+dist/
+build/
+*.egg-info/
+
+# Node modules (for AnythingLLM)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Operating System
+.DS_Store
+Thumbs.db
+*.bak
+*.tmp
+
+# Secrets & Credentials (NEVER COMMIT)
+secrets/
+.secrets/
+credentials.json
+API_KEYS
+api_keys.txt
+tokens/
+.tokens/
+
+# Large Files
+*.zip
+*.tar.gz
+*.7z
+models/
+*.bin
+*.safetensors
+
+# Result Data (Local only)
+results/
+outputs/
+temp/
+tmp/
+
+# Test Coverage
+.coverage
+coverage.xml
+.pytest_cache/
+
+# IDE temp files
+.vscode/.python
+workspace.code-workspace
+
+# Mac specific
+.AppleDouble
+.LSOverride
+._*
+
+# Windows specific
+$RECYCLE.BIN/
+ehthumbs.db
+desktop.ini
+
+# PostgreSQL dump
+*.sql
+*.sql.gz
+
+# Ollama models (local download)
+.ollama/
+
+# AnythingLLM data
+anythingllm/
+anythingllm_data/
+
+# Compiled docs
+docs/_build/
+
+# IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
