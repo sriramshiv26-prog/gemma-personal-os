@@ -97,6 +97,81 @@ class Database:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_api_calls_task_id ON api_calls(task_id)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_api_calls_api_name ON api_calls(api_name)")
 
+        # Knowledge graph tables (entities and relationships)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS entities (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT UNIQUE NOT NULL,
+                type TEXT NOT NULL,
+                category TEXT,
+                description TEXT,
+                frequency INTEGER DEFAULT 1,
+                first_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_entities_type ON entities(type)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_entities_category ON entities(category)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_entities_frequency ON entities(frequency DESC)")
+
+        # Task-Entity linking
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS task_entities (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                task_id TEXT NOT NULL,
+                entity_id INTEGER NOT NULL,
+                confidence FLOAT DEFAULT 1.0,
+                FOREIGN KEY (entity_id) REFERENCES entities(id),
+                FOREIGN KEY (task_id) REFERENCES tasks(task_id),
+                UNIQUE(task_id, entity_id)
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_task_entities_task ON task_entities(task_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_task_entities_entity ON task_entities(entity_id)")
+
+        # Graph nodes
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS graph_nodes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                node_type TEXT NOT NULL,
+                node_id TEXT UNIQUE NOT NULL,
+                label TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                data BLOB
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_graph_nodes_type ON graph_nodes(node_type)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_graph_nodes_id ON graph_nodes(node_id)")
+
+        # Graph edges (relationships)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS graph_edges (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                source_node_id TEXT NOT NULL,
+                target_node_id TEXT NOT NULL,
+                relationship_type TEXT NOT NULL,
+                weight FLOAT DEFAULT 1.0,
+                confidence FLOAT DEFAULT 0.8,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (source_node_id) REFERENCES graph_nodes(node_id),
+                FOREIGN KEY (target_node_id) REFERENCES graph_nodes(node_id)
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_edges_source ON graph_edges(source_node_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_edges_target ON graph_edges(target_node_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_edges_type ON graph_edges(relationship_type)")
+
+        # Task summaries (for memory consolidation)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS task_summaries (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                original_task_ids TEXT NOT NULL,
+                summary_text TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                consolidated_at TIMESTAMP
+            )
+        """)
+
         conn.commit()
         conn.close()
 

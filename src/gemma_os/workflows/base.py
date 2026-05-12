@@ -10,6 +10,7 @@ from ..core import (
     Database,
     Config,
 )
+from ..knowledge import GraphQuery
 
 
 class BaseWorkflow:
@@ -20,6 +21,7 @@ class BaseWorkflow:
         self.router = ModelRouter(config=self.config)
         self.orchestrator = Orchestrator(config=self.config)
         self.database = Database(config=self.config)
+        self.graph_query = GraphQuery()
         self.task_id = str(uuid.uuid4())[:8]
 
     def validate_inputs(self, **kwargs) -> bool:
@@ -75,6 +77,20 @@ class BaseWorkflow:
 
             # Prepare context
             context = self.prepare_context(**kwargs)
+
+            # Enrich context with knowledge graph (related tasks and entities)
+            task_description = kwargs.get("task", "")
+            if task_description:
+                try:
+                    related_tasks = self.graph_query.find_related_tasks(
+                        self.task_id,
+                        max_hops=2,
+                        limit=3
+                    )
+                    if related_tasks:
+                        context['related_tasks'] = related_tasks
+                except Exception:
+                    pass  # Knowledge graph not initialized yet, skip enrichment
 
             # Create workflow tasks
             tasks = self.orchestrator.create_workflow(
