@@ -52,11 +52,13 @@ class Database:
                 completed_at TIMESTAMP,
                 execution_time_ms INTEGER,
                 tokens_input INTEGER,
-                tokens_output INTEGER,
-                INDEX idx_status (status),
-                INDEX idx_created_at (created_at)
+                tokens_output INTEGER
             )
         """)
+
+        # Indexes for tasks table
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_tasks_created_at ON tasks(created_at)")
 
         # Audit log table
         cursor.execute("""
@@ -67,11 +69,13 @@ class Database:
                 event_data TEXT,
                 timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 severity TEXT DEFAULT 'INFO',
-                FOREIGN KEY (task_id) REFERENCES tasks(task_id),
-                INDEX idx_task_id (task_id),
-                INDEX idx_timestamp (timestamp)
+                FOREIGN KEY (task_id) REFERENCES tasks(task_id)
             )
         """)
+
+        # Indexes for audit_log table
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_audit_task_id ON audit_log(task_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_audit_timestamp ON audit_log(timestamp)")
 
         # API calls table (for external service tracking)
         cursor.execute("""
@@ -85,15 +89,16 @@ class Database:
                 response_status INTEGER,
                 response_time_ms INTEGER,
                 timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (task_id) REFERENCES tasks(task_id),
-                INDEX idx_task_id (task_id),
-                INDEX idx_api_name (api_name)
+                FOREIGN KEY (task_id) REFERENCES tasks(task_id)
             )
         """)
 
+        # Indexes for api_calls table
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_api_calls_task_id ON api_calls(task_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_api_calls_api_name ON api_calls(api_name)")
+
         conn.commit()
         conn.close()
-        print("✓ Database initialized")
 
     def create_task(
         self,
