@@ -1,0 +1,49 @@
+# Gemma 4 Personal OS Requirements
+# Core dependencies for local AI workstation
+
+# Model Inference
+ollama==0.0.13              # Ollama Python client for model access
+pydantic==2.0.0             # Data validation and configuration
+
+# Orchestration
+crewai==0.17.0              # Multi-agent framework (CrewAI patterns)
+
+# RAG - Private Knowledge Base
+anything-llm==1.0.0         # AnythingLLM client for private RAG
+langchain==0.1.0            # LLM framework (optional, for advanced use)
+
+# Environment & Configuration
+python-dotenv==1.0.0        # Environment variable management
+
+# HTTP & API
+requests==2.31.0            # HTTP client library
+aiohttp==3.9.0              # Async HTTP (for concurrent API calls)
+
+# Data Processing
+pandas==2.0.0               # Data manipulation
+numpy==1.24.0               # Numerical computing
+
+# Web Scraping & Parsing
+beautifulsoup4==4.12.0      # HTML/XML parsing
+lxml==4.9.0                 # XML/HTML processing (faster parser)
+httpx==0.24.0               # Modern HTTP client
+
+# Database
+sqlalchemy==2.0.0           # ORM (if needed for advanced DB features)
+
+# Caching
+redis==5.0.0                # Redis client (optional, for distributed cache)
+
+# Logging & Monitoring
+python-json-logger==2.0.0   # JSON logging
+
+# Testing (optional, for development)
+pytest==7.4.0               # Testing framework
+pytest-asyncio==0.21.0      # Async test support
+pytest-cov==4.1.0           # Coverage reporting
+
+# Development tools (optional)
+black==23.9.0               # Code formatter
+isort==5.12.0               # Import sorting
+flake8==6.0.0               # Linting
+mypy==1.5.0                 # Type checking
