@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # Ubuntu 22.04 Integration Test
+  test-ubuntu:
+    build:
+      context: ..
+      dockerfile: tests/Dockerfile.ubuntu
+    container_name: gemma-test-ubuntu
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./results-ubuntu:/app/results
+      - ollama-ubuntu:/root/.ollama
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    networks:
+      - gemma-network
+
+  # Alpine Linux Integration Test (lightweight)
+  test-alpine:
+    build:
+      context: ..
+      dockerfile: tests/Dockerfile.alpine
+    container_name: gemma-test-alpine
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "11435:11434"
+    volumes:
+      - ./results-alpine:/app/results
+      - ollama-alpine:/root/.ollama
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    networks:
+      - gemma-network
+    depends_on:
+      - test-ubuntu
+
+networks:
+  gemma-network:
+    driver: bridge
+
+volumes:
+  ollama-ubuntu:
+    driver: local
+  ollama-alpine:
+    driver: local

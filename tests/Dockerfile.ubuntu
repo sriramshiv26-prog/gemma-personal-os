@@ -1,0 +1,56 @@
+# Dockerfile for Linux Integration Testing
+# Builds Ubuntu 22.04 environment with Gemma 4 Personal OS
+
+FROM ubuntu:22.04
+
+# Prevent interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    python3.10 \
+    python3.10-venv \
+    python3.10-dev \
+    git \
+    curl \
+    wget \
+    build-essential \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create app directory
+WORKDIR /app
+
+# Clone repository (or copy if running locally)
+RUN git clone https://github.com/sriramshiv26-prog/gemma-personal-os.git . || true
+
+# Setup Python virtual environment
+RUN python3.10 -m venv /app/venv
+ENV PATH="/app/venv/bin:$PATH"
+
+# Install Python dependencies
+RUN pip install --upgrade pip setuptools wheel && \
+    pip install -r requirements.txt
+
+# Install Ollama
+RUN curl -fsSL https://ollama.ai/install.sh | bash || true
+
+# Expose Ollama port
+EXPOSE 11434
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:11434/api/tags || exit 1
+
+# Default command: Run integration tests
+CMD ["/bin/bash", "-c", "\
+    echo 'Starting Ollama daemon...' && \
+    ollama serve &>/dev/null & \
+    sleep 5 && \
+    echo 'Pulling Gemma models...' && \
+    ollama pull gemma2:2b && \
+    ollama pull gemma2:26b && \
+    echo 'Running integration tests...' && \
+    python3 tests/integration_test.py \
+"]

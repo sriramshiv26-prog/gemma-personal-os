@@ -1,0 +1,52 @@
+# Dockerfile for Alpine Linux Integration Testing
+# Lightweight test environment with minimal footprint
+
+FROM alpine:latest
+
+# Install system dependencies
+RUN apk add --no-cache \
+    python3 \
+    py3-pip \
+    py3-venv \
+    git \
+    curl \
+    wget \
+    build-base \
+    python3-dev \
+    ca-certificates
+
+# Create app directory
+WORKDIR /app
+
+# Clone repository
+RUN git clone https://github.com/sriramshiv26-prog/gemma-personal-os.git . || true
+
+# Setup Python virtual environment
+RUN python3 -m venv /app/venv
+ENV PATH="/app/venv/bin:$PATH"
+
+# Install Python dependencies
+RUN pip install --upgrade pip setuptools wheel && \
+    pip install -r requirements.txt
+
+# Install Ollama
+RUN curl -fsSL https://ollama.ai/install.sh | bash || true
+
+# Expose Ollama port
+EXPOSE 11434
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:11434/api/tags || exit 1
+
+# Default command: Run integration tests
+CMD ["/bin/sh", "-c", "\
+    echo 'Starting Ollama daemon...' && \
+    ollama serve &>/dev/null & \
+    sleep 5 && \
+    echo 'Pulling Gemma models...' && \
+    ollama pull gemma2:2b && \
+    ollama pull gemma2:26b && \
+    echo 'Running integration tests...' && \
+    python3 tests/integration_test.py \
+"]
